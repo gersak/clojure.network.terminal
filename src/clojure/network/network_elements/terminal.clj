@@ -14,10 +14,10 @@
              get-terminal
              disconnect]]
     [clojure.network.network-elements.ios.command-line :as ios]
-    [clojure.network.network-elements.comware.command-line :as comware]
+    [clojure.network.network-elements.hp-comware.command-line :as comware]
     [clojure.network.network-elements.junos.command-line :as junos]
-    [clojure.network.network-elements.comware.command-line :as huawei])
-  (:import [bufu.terminal.client TerminalSession]
+    [clojure.network.network-elements.huawei-comware.command-line :as huawei])
+  (:import [clojure.network.terminal TerminalSession]
            [java.lang UnsupportedOperationException]))
 
 (def NOT_SUPPORTED (UnsupportedOperationException. "This funcion is not jet supported!"))

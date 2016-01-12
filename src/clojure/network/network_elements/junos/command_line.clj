@@ -1,10 +1,10 @@
-(ns bufu.network-elements.juniper.junos.command-line
+(ns clojure.network.network-elements.junos.command-line
   (:require
-   [bufu.terminal.client :as client :refer [send-command->
-                                            quiz->
-                                            get-terminal
-                                            *prompt-symbols*
-                                            is-connected?]])
+    [clojure.network.terminal :as client :refer [send-command->
+                                                 quiz->
+                                                 get-terminal
+                                                 *prompt-symbols*
+                                                 is-connected?]])
   (:import [java.security PrivilegedActionException]
            [java.net ConnectException]))
 
@@ -18,7 +18,7 @@
 (def os ::JUNOS)
 
 (defn- os-check [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on JUNOS")))
 
 (defn send-command [router ^String command]
@@ -68,7 +68,7 @@
      (clojure.string/join "\n" (-> conf clojure.string/split-lines rest butlast butlast)))))
 
 (defn save-configuration [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on JUNOS"))
   (if-not (edit-mode? router) true
     (do
@@ -85,14 +85,14 @@
   (throw (Exception. "TFTP and FTP operations not jet supported for Junos")))
 
 (defmethod download-configuration String [router filename]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on JUNOS"))
   (when-let [config (show-configuration router)]
     (spit (str filename) config)
     true))
 
 (defmethod download-configuration java.io.File [router  #^java.io.File filename]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on JUNOS"))
   (when-let [config (show-configuration router)]
     (spit (str filename) config)

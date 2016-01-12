@@ -2,11 +2,6 @@
   :description "Communicate with network/equipment with terminal. Supported protocols are
                SSH and Telnet."
   :url ""
-  ;:repl-options {:init-ns bufu.network-elements.juniper.junos.analytics}
-  ;:repl-options {:init-ns bufu.records.cisco.configuration}
-  ;:repl-options {:init-ns bufu.network-elements.cisco.ios.analytics}
-  ;:repl-options {:init-ns bufu.records.junos.firewall}
-  ;:repl-options {:init-ns bufu.network-elements.routers.core}
   :aot :all
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}

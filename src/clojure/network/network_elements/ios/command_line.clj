@@ -1,12 +1,12 @@
-(ns bufu.network-elements.cisco.ios.command-line
+(ns clojure.network.network-elements.ios.command-line
   (:require
-    [bufu.terminal.client :as client :refer [send-command->
-                                             quiz->
-                                             is-connected?
-                                             disconnect
-                                             *timeout-period*
-                                             get-terminal
-                                             get-remote-address]])
+    [clojure.network.terminal :as client :refer [send-command->
+                                                 quiz->
+                                                 is-connected?
+                                                 disconnect
+                                                 *timeout-period*
+                                                 get-terminal
+                                                 get-remote-address]])
   (:import [java.net ConnectException]
            [java.security PrivilegedActionException]))
 
@@ -22,32 +22,32 @@
 (def os ::IOS)
 
 (defn send-command [router ^String command]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (if (-> router get-terminal is-connected?)
     (first (send-command-> (get-terminal router) command))
     (throw (ConnectException. "Not connected to router!"))))
 
 (defn terminal-length-0 [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (boolean (send-command router "terminal length 0")))
 
 (defn enabled? [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (when (is-connected? (get-terminal router))
     (boolean (re-find #"#$" (send-command router "")))))
 
 
 (defn- config-mode? [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (when (is-connected? (get-terminal router))
     (boolean (re-find #"\(config.*\)#$" (send-command router "")))))
 
 (defn enter-config-mode [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (if (enabled? router)
     (if (config-mode? router) true
@@ -56,7 +56,7 @@
        (config-mode? router)))))
 
 (defn exit-config-mode [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (if (config-mode? router)
     (do
@@ -65,7 +65,7 @@
     true))
 
 (defn enter-enabled-mode [router password]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (if (config-mode? router) (do (exit-config-mode router) true)
     (if (enabled? router) true
@@ -79,7 +79,7 @@
 
 
 (defn save-configuration [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (when (config-mode? router)
     (exit-config-mode router))
@@ -89,7 +89,7 @@
 
 
 (defn system-info [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (when (config-mode? router) (exit-config-mode router))
   (if (not (enabled? router))
@@ -101,7 +101,7 @@
 (defn copy-tftp->running
   ([router #^String tftp-host] (copy-tftp->running router tftp-host ""))
   ([router #^String tftp-host #^String tftp-path]
-   (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+   (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
    (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
    (if-not (enabled? router)
      (throw (NOT_ENABLED (str " Cannot copy tftp to running for host: " (get-remote-address router))))
@@ -122,7 +122,7 @@
 (defn copy-running->tftp
   ([router #^String tftp-host] (copy-tftp->running router tftp-host ""))
   ([{tc :terminal :as router} #^String tftp-host #^String tftp-path]
-   (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+   (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
    (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
    (if-not (enabled? router)
      (throw (NOT_ENABLED (str " Cannot copy running to tftp for host " (get-remote-address tc))))
@@ -138,7 +138,7 @@
            (throw (ConnectException. (str "Timeout occured while downloading configuration from: " (-> router get-terminal get-remote-address))))))))))
 
 (defn show-configuration [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (if-not (enabled? router)
     (throw (NOT_ENABLED (str " Cannot show running configuration for " (get-remote-address (get-terminal router)))))
@@ -149,7 +149,7 @@
 (defmulti download-configuration (fn [router destination] (class destination)))
 
 (defmethod download-configuration clojure.lang.PersistentArrayMap [router remote-options]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (cond
     (contains? remote-options :tftp-server) (copy-running->tftp router (:tftp-server remote-options) (:filename remote-options))
@@ -157,14 +157,14 @@
     :else (Exception. (str "Unknow options: " remote-options))))
 
 (defmethod download-configuration String [router filename]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (when-let [config (show-configuration router)]
     (spit filename config)
     true))
 
 (defmethod download-configuration java.io.File [router filename]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on IOS"))
   (when-let [config (show-configuration router)]
     (spit filename config)

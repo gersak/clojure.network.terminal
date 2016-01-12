@@ -14,7 +14,7 @@
   that will at every received input.
 
   Other functions that user <-receive are dependent on *prompt-symbols* and *prompt-wrapper*
-  variables in bufu.terminal.client.
+  variables in clojure.network.terminal.
 
   Please use binding while using this functions if target prompt patterns do not match
   *prompt-symbols*"
@@ -72,7 +72,7 @@
   (assert (every? string? commands) "Commands have to be of String type.")
   (assert ((comp not boolean) (some (partial re-find #"\n") commands))
           "send-command-> is not intendend for sending multiline commands.
-          If needed bufu.terminal.client/send-string-> can be used")
+          If needed clojure.network.terminal/send-string-> can be used")
   (let [commands (for [c commands] (if-not (= \newline (last c)) (str c \newline) c))]
     (when (is-connected? tc)
       (try
@@ -347,7 +347,7 @@
               true)))))))
 
 (defmethod create-terminal-client :ssh [_ {:keys [terminal timeout] :or {timeout *connection-timeout*} :as options}]
-  (let [client (bufu.terminal.SSHShell.)
+  (let [client (clojure.network.terminal.SSHShell.)
         input-channel (chan)
         output-channel  (chan)]
     (reify

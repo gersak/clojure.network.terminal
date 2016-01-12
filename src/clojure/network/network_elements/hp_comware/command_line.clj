@@ -1,7 +1,7 @@
-(ns bufu.network-elements.hp.comware.command-line
+(ns clojure.network.network-elements.hp-comware.command-line
   (:require
     [clojure.core.async :refer (>!! <!!)]
-    [bufu.terminal.client
+    [clojure.network.terminal
      :as client
      :refer [send-command->
              quiz->
@@ -14,7 +14,7 @@
              *prompt-wrapper*
              *prompt-symbols*
              *timeout-period*]])
-  (:import [bufu.terminal.client TerminalSession AsyncTerminalSession]
+  (:import [clojure.network.terminal TerminalSession AsyncTerminalSession]
            [java.net ConnectException]
            [java.security PrivilegedActionException]))
 
@@ -38,7 +38,7 @@
 
 (defn send-command
   ([router ^String command]
-   (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+   (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
    (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
    (binding [*prompt-symbols* [["<" ">"] ["\\[" "\\]"]]
              *prompt-wrapper* (fn [[b e]]
@@ -50,20 +50,20 @@
 
 
 (defn system-view? [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (when (is-connected? (get-terminal router))
     (boolean (re-find #"\]$" (send-command router "")))))
 
 (defn monitor-view? [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (when (is-connected? (get-terminal router))
     (boolean (re-find #">$" (send-command router "")))))
 
 (defn super? [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
-  (assert (satisfies? bufu.terminal.client/AsyncTerminalSession (get-terminal router)) (str "router doesn't implement AsyncTerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/AsyncTerminalSession (get-terminal router)) (str "router doesn't implement AsyncTerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (if (system-view? router) true
     (when (is-connected? (get-terminal router))
@@ -77,7 +77,7 @@
             true))))))
 
 (defn super [router password]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (when (is-connected? (get-terminal router))
     (if (super? router) true
@@ -95,13 +95,13 @@
             true))))))
 
 (defn disable-screen-length [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (when (is-connected? (get-terminal router))
     (send-command router "system-length disable")))
 
 (defn enter-system-view [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (when (is-connected? (get-terminal router))
     (if (system-view? router) true
@@ -109,7 +109,7 @@
         (boolean (re-find #"\]" (send-command router "system-view")))))))
 
 (defn exit-system-view [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (when (is-connected? (get-terminal router))
     (while (system-view? router)
@@ -118,7 +118,7 @@
 
 
 (defn save-configuration [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (if-let [response (quiz->
                       (get-terminal router)
@@ -133,7 +133,7 @@
 
 
 (defn display-configuration [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (if-not (super? router)
     (throw (NOT_PRIVILEGED (str " Cannot display configuration on " (-> router get-terminal get-remote-address))))
@@ -146,7 +146,7 @@
 
 
 (defmethod backup-configuration clojure.lang.PersistentArrayMap [router remote-options]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (if-not (super? router)
     (throw (NOT_PRIVILEGED (str " Cannot backup configuration on " (-> router get-terminal get-remote-address))))
@@ -163,7 +163,7 @@
       :else (Exception. (str "Unknown options: " remote-options)))))
 
 (defmethod backup-configuration String [router destination]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (if-not (super? router)
     (throw (NOT_PRIVILEGED (str " Cannot backup configuration on " (-> router get-terminal get-remote-address))))
@@ -175,7 +175,7 @@
 
 
 (defmethod backup-configuration java.io.File [router destination]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not HP device."))
   (if-not (super? router)
     (throw (NOT_PRIVILEGED (str " Cannot backup configuration on " (-> router get-terminal get-remote-address))))

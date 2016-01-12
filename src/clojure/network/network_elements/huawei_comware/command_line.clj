@@ -1,7 +1,7 @@
-(ns bufu.network-elements.huawei.comware.command-line
+(ns clojure.network.network-elements.huawei-comware.command-line
   (:require
     [clojure.core.async :refer (>!! <!!)]
-    [bufu.terminal.client
+    [clojure.network.terminal
      :as client
      :refer [send-command->
              quiz->
@@ -14,7 +14,7 @@
              *prompt-wrapper*
              *prompt-symbols*
              *timeout-period*]])
-  (:import [bufu.terminal.client TerminalSession AsyncTerminalSession]
+  (:import [clojure.network.terminal TerminalSession AsyncTerminalSession]
            [java.net ConnectException]
            [java.security PrivilegedActionException]))
 
@@ -34,7 +34,7 @@
 
 (defn send-command
   ([router ^String command]
-   (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+   (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
    (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
    (binding [*prompt-symbols* [["<" ">"] ["\\[" "\\]"]]
              *prompt-wrapper* (fn [[b e]]
@@ -45,26 +45,26 @@
 
 
 (defn system-view? [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
   (when (is-connected? (get-terminal router))
     (boolean (re-find #"\]$" (send-command router "")))))
 
 (defn monitor-view? [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
   (when (is-connected? (get-terminal router))
     (boolean (re-find #">$" (send-command router "")))))
 
 (defn enter-system-view [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
   (when (is-connected? (get-terminal router))
     (if (system-view? router) true
       (boolean (re-find #"\]" (send-command router "system-view"))))))
 
 (defn exit-system-view [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
   (when (is-connected? (get-terminal router))
     (while (system-view? router)
@@ -73,7 +73,7 @@
 
 
 (defn save-configuration [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
   (if-let [response (quiz->
                       (get-terminal router)
@@ -90,7 +90,7 @@
   :description
   :label"
   [router & options]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
   (if-not (system-view? router)
     (throw NOT_SYSTEM_VIEW)
@@ -104,7 +104,7 @@
 
 
 (defn startup-file [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
   (exit-system-view router)
   (let [info-output (send-command router "disp startup")
@@ -113,14 +113,14 @@
 
 
 (defn screen-length [router size]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
   (exit-system-view router)
   (send-command router (str "screen-length " size " temporary")))
 
 
 (defn display-configuration [router]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not Huawei device."))
   (screen-length router 0)
   (let [config (send-command router "display current-configuration")
@@ -132,7 +132,7 @@
 
 
 (defmethod download-configuration clojure.lang.PersistentArrayMap [router remote-options]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on HuaweiOS"))
   (cond
     (contains? remote-options :tftp-server) (let [{:keys [tftp-server filename]} remote-options
@@ -145,14 +145,14 @@
     :else (Exception. (str "Unknown options: " remote-options))))
 
 (defmethod download-configuration String [router filename]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on HuaweiOS"))
   (when-let [config (display-configuration router)]
     (spit filename config)
     true))
 
 (defmethod download-configuration java.io.File [router filename]
-  (assert (satisfies? bufu.terminal.client/TerminalSession router) (str "router doesn't implement TerminalSession"))
+  (assert (satisfies? clojure.network.terminal/TerminalSession router) (str "router doesn't implement TerminalSession"))
   (assert (isa? (class router) os) (str "router type " (class router) " is not opperating on HuaweiOS"))
   (when-let [config (display-configuration router)]
     (spit filename config)
