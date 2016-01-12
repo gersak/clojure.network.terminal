@@ -7,11 +7,12 @@ SSH and Telnet.
 
 TODO...
 
-## License
+License
+-------
 
 Copyright © 2016 Robert Gersak
 
 Distributed under the [Eclipse Public License][epl], the same as Clojure.
 
 
-[epl][http://opensource.org/licenses/eclipse-1.0.php]
+[epl]: http://opensource.org/licenses/eclipse-1.0.php
