@@ -1,14 +1,15 @@
 # clojure.network.terminal
 
-A Clojure library designed to ... well, that part is up to you.
+Communicate with network/equipment with terminal. Supported protocols are
+SSH and Telnet.
 
 ## Usage
 
-FIXME
+TODO...
 
 ## License
 
-Copyright © 2016 FIXME
+Copyright © 2016 Robert Gersak
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the [Eclipse Public License][http://opensource.org/licenses/eclipse-1.0.php], the same as Clojure.
+
